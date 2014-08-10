@@ -1,15 +1,17 @@
 <div>
     <div class="row">
         <article ng-repeat="article in articles" class="col-md-12">
-            <h2>{{article.title}}</h2>
+            <h2>{{article.title}} <a ng-href="" ng-click="deleteArticle(article._id)"><span
+                    class="glyphicon glyphicon-remove"></span></a><a
+                    ng-href="" data-toggle="modal" data-target="#myModalEdit" ng-click="editArticleClick(article._id)"><span
+                    class="glyphicon glyphicon-pencil"></span></a></h2>
             <span class="glyphicon glyphicon-user">{{article.author}}</span>
-            <span class="glyphicon glyphicon-time">{{article.date | date:'dd-MM-yyyy'}}</span>
+            <span class="glyphicon glyphicon-time">{{article.date | date:'dd/MM/yyyy'}}</span>
             <img ng-src="{{article.image}}" class="img-responsive" alt="{{article.title}}"/>
-            {{article.content}}
+            {{article.body}}
         </article>
     </div>
     <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
         Add article
     </button>
-
 </div>

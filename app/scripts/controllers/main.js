@@ -17,30 +17,27 @@ myApp.controller('MainCtrl', ['$scope', function ($scope) {
     ];
 }]);
 
-/*myApp.controller('loadArticlesCtrl', ['$scope', '$http', function ($scope, $http) {
- $http.get('https://dl.dropboxusercontent.com/u/39441604/EPAM/angularJS/package.json')
- .success(function (data) {
- $scope.articles = angular.fromJson(data);
- });
-
- $scope.article = {};
-
- $scope.addNewArticle = function () {
- $scope.article.date = new Date();
- $scope.articles.push($scope.article);
- $scope.article = {};
- };
- }]);*/
-
 myApp.directive('articlesBlock', function () {
     return {
         restrict: 'E',
         templateUrl: 'views/articles-block.html',
-        controller: function ($scope, $http) {
-            $http.get('https://dl.dropboxusercontent.com/u/39441604/EPAM/angularJS/package.json')
-                .success(function (data) {
-                    $scope.articles = angular.fromJson(data);
-                });
+        controller: function(Articles, $rootScope, $scope){
+
+            $rootScope.$on('article:updated', function(){
+                $scope.articles = Articles.getAll();
+            });
+
+            $rootScope.$on('article:deleted', function(){
+                $scope.articles = Articles.getAll();
+            });
+
+            $rootScope.$on('article:error', function(){
+                console.log('ERROR!!!');
+            })
+
+            $scope.deleteArticle = function(id){
+                Articles.delete(id);
+            };
         }
     };
 });
@@ -49,14 +46,33 @@ myApp.directive('newArticleBlock', function () {
     return {
         restrict: 'E',
         templateUrl: 'views/new-article-block.html',
-        controller: function ($scope) {
+        controller: function (Articles, $rootScope, $scope) {
             $scope.article = {};
 
             $scope.addNewArticle = function () {
                 $scope.article.date = new Date();
-                $scope.articles.push($scope.article);
+                Articles.add($scope.article);
                 $scope.article = {};
             };
         }
     };
 });
+
+myApp.directive('editArticleBlock', function(){
+    return {
+        restrict: 'E',
+        templateUrl: 'views/edit-article-block.html',
+        controller: function (Articles, $rootScope, $scope) {
+
+            $scope.editArticle = {};
+
+            $scope.editArticleClick = function(id){
+                $scope.editArticle = Articles.get(id);
+            }
+
+            $scope.editArticleForm = function(){
+                Articles.edit($scope.editArticle);
+            }
+        }
+    }
+})
