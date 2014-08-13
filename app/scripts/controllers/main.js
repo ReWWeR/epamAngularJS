@@ -21,23 +21,36 @@ myApp.directive('articlesBlock', function () {
     return {
         restrict: 'E',
         templateUrl: 'views/articles-block.html',
-        controller: function(Articles, $rootScope, $scope){
+        controller: function (Articles, $rootScope, $scope, $timeout) {
+
+            $scope.getAll = function () {
+                $scope.articles = Articles.query();
+            };
+
+            $scope.getAll();
+
+            $scope.deleteArticle = function (articleId) {
+                Articles.delete({id: articleId});
+                $rootScope.$broadcast('article:updated');
+            };
 
             $rootScope.$on('article:updated', function(){
-                $scope.articles = Articles.getAll();
-            });
+                $timeout(function () {
+                    $scope.getAll();
+                }, 200)
+             });
+/*
+             $rootScope.$on('article:deleted', function(){
+             $scope.articles = Articles.getAll();
+             });
 
-            $rootScope.$on('article:deleted', function(){
-                $scope.articles = Articles.getAll();
-            });
+             $rootScope.$on('article:error', function(){
+             console.log('ERROR!!!');
+             })
 
-            $rootScope.$on('article:error', function(){
-                console.log('ERROR!!!');
-            })
-
-            $scope.deleteArticle = function(id){
-                Articles.delete(id);
-            };
+             $scope.deleteArticle = function(id){
+             Articles.delete(id);
+             };*/
         }
     };
 });
@@ -51,14 +64,15 @@ myApp.directive('newArticleBlock', function () {
 
             $scope.addNewArticle = function () {
                 $scope.article.date = new Date();
-                Articles.add($scope.article);
+                Articles.save($scope.article);
                 $scope.article = {};
+                $rootScope.$broadcast('article:updated');
             };
         }
     };
 });
 
-myApp.directive('editArticleBlock', function(){
+myApp.directive('editArticleBlock', function () {
     return {
         restrict: 'E',
         templateUrl: 'views/edit-article-block.html',
@@ -66,12 +80,14 @@ myApp.directive('editArticleBlock', function(){
 
             $scope.editArticle = {};
 
-            $scope.editArticleClick = function(id){
-                $scope.editArticle = Articles.get(id);
-            }
+            $scope.editArticleClick = function (articleId) {
+                $scope.articleId = articleId;
+                $scope.editArticle = Articles.get({id: articleId});
+            };
 
-            $scope.editArticleForm = function(){
-                Articles.edit($scope.editArticle);
+            $scope.editArticleForm = function () {
+                Articles.update({id: $scope.articleId}, $scope.editArticle);
+                $rootScope.$broadcast('article:updated');
             }
         }
     }

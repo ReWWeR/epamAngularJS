@@ -1,12 +1,13 @@
 'use strict';
 
-myApp.factory('Articles', ['$http', '$rootScope', function ($http, $rootScope) {
+myApp.factory('Articles', ['$http', '$rootScope', '$resource', function ($http, $rootScope, $resource) {
 
-    var articles = [];
-    var service = {};
+    return $resource('http://54.72.3.96:3000/posts/:id', null,
+        {
+            'update': { method:'PUT' }
+        });
 
-
-    function getArticles() {
+    /*function getArticles() {
         $http({method: 'GET', url: 'http://54.72.3.96:3000/posts'})
             .success(function (data) {
                 articles = data;
@@ -76,5 +77,5 @@ myApp.factory('Articles', ['$http', '$rootScope', function ($http, $rootScope) {
 
     };
 
-    return service;
+    return service;*/
 }]);
