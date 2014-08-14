@@ -23,20 +23,23 @@ myApp.directive('articlesBlock', function () {
         templateUrl: 'views/articles-block.html',
         controller: function (Articles, $rootScope, $scope, $timeout) {
 
-            $scope.getAll = function () {
                 $scope.articles = Articles.query();
-            };
-
-            $scope.getAll();
 
             $scope.deleteArticle = function (articleId) {
-                Articles.delete({id: articleId});
+                Articles.delete({id: articleId}).$promise.then(function(){
+                    angular.forEach($scope.articles, function (value, i) {
+                        if (value._id === articleId) {
+                            $scope.articles.splice(i, 1);
+                            return false;
+                        }
+                    });
+                });
                 $rootScope.$broadcast('article:updated');
             };
 
             $rootScope.$on('article:updated', function(){
                 $timeout(function () {
-                    $scope.getAll();
+                    $scope.articles;
                 }, 200)
              });
 /*
@@ -64,9 +67,10 @@ myApp.directive('newArticleBlock', function () {
 
             $scope.addNewArticle = function () {
                 $scope.article.date = new Date();
-                Articles.save($scope.article);
+                Articles.save($scope.article).$promise.then(function(data){
+                        $scope.articles.push(data);
+                    });
                 $scope.article = {};
-                $rootScope.$broadcast('article:updated');
             };
         }
     };
