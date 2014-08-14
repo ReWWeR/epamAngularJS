@@ -21,12 +21,13 @@ myApp.directive('articlesBlock', function () {
     return {
         restrict: 'E',
         templateUrl: 'views/articles-block.html',
-        controller: function (Articles, $rootScope, $scope, $timeout) {
+        controller: function (Articles, $rootScope, $scope) {
 
                 $scope.articles = Articles.query();
 
             $scope.deleteArticle = function (articleId) {
-                Articles.delete({id: articleId}).$promise.then(function(){
+                Articles.delete({id: articleId})
+                    .$promise.then(function(){
                     angular.forEach($scope.articles, function (value, i) {
                         if (value._id === articleId) {
                             $scope.articles.splice(i, 1);
@@ -34,26 +35,7 @@ myApp.directive('articlesBlock', function () {
                         }
                     });
                 });
-                $rootScope.$broadcast('article:updated');
             };
-
-            $rootScope.$on('article:updated', function(){
-                $timeout(function () {
-                    $scope.articles;
-                }, 200)
-             });
-/*
-             $rootScope.$on('article:deleted', function(){
-             $scope.articles = Articles.getAll();
-             });
-
-             $rootScope.$on('article:error', function(){
-             console.log('ERROR!!!');
-             })
-
-             $scope.deleteArticle = function(id){
-             Articles.delete(id);
-             };*/
         }
     };
 });
@@ -67,7 +49,8 @@ myApp.directive('newArticleBlock', function () {
 
             $scope.addNewArticle = function () {
                 $scope.article.date = new Date();
-                Articles.save($scope.article).$promise.then(function(data){
+                Articles.save($scope.article)
+                    .$promise.then(function(data){
                         $scope.articles.push(data);
                     });
                 $scope.article = {};
@@ -90,9 +73,16 @@ myApp.directive('editArticleBlock', function () {
             };
 
             $scope.editArticleForm = function () {
-                Articles.update({id: $scope.articleId}, $scope.editArticle);
-                $rootScope.$broadcast('article:updated');
-            }
+                Articles.update({id: $scope.articleId}, $scope.editArticle)
+                    .$promise.then(function(){
+                        angular.forEach($scope.articles, function (value, i) {
+                            if (value._id === $scope.articleId) {
+                                $scope.articles.splice(i, 1, $scope.editArticle);
+                                return false;
+                            }
+                        });
+                    });
+            };
         }
-    }
-})
+    };
+});
