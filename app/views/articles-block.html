@@ -1,7 +1,7 @@
 <div>
     <div class="row">
         <article ng-repeat="article in articles" class="col-md-12">
-            <h2>{{article.title}} <a ng-href="" ng-click="deleteArticle(article._id)"><span
+            <h2><a ng-href="/#/article/{{article._id}}">{{article.title}}</a> <a ng-href="" ng-click="deleteArticle(article._id)"><span
                     class="glyphicon glyphicon-remove"></span></a><a
                     ng-href="" data-toggle="modal" data-target="#myModalEdit" ng-click="editArticleClick(article._id)"><span
                     class="glyphicon glyphicon-pencil"></span></a></h2>
