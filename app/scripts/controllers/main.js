@@ -21,20 +21,28 @@ myApp.directive('articlesBlock', function () {
     return {
         restrict: 'E',
         templateUrl: 'views/articles-block.html',
-        controller: function (Articles, $rootScope, $scope) {
+        controller: function (Articles, $rootScope, $scope, slicer) {
 
-                $scope.articles = Articles.query();
+            $scope.articles = Articles.query();
+
+            $scope.articles.$promise.then(function () {
+                angular.forEach($scope.articles, function (value, i) {
+                    $scope.slicedPost = slicer.slicePost(value.body, value._id, 100);
+                    value.body = $scope.slicedPost;
+                })
+            });
+
 
             $scope.deleteArticle = function (articleId) {
                 Articles.delete({id: articleId})
-                    .$promise.then(function(){
-                    angular.forEach($scope.articles, function (value, i) {
-                        if (value._id === articleId) {
-                            $scope.articles.splice(i, 1);
-                            return false;
-                        }
+                    .$promise.then(function () {
+                        angular.forEach($scope.articles, function (value, i) {
+                            if (value._id === articleId) {
+                                $scope.articles.splice(i, 1);
+                                return false;
+                            }
+                        });
                     });
-                });
             };
         }
     };
@@ -50,7 +58,7 @@ myApp.directive('newArticleBlock', function () {
             $scope.addNewArticle = function () {
                 $scope.article.date = new Date();
                 Articles.save($scope.article)
-                    .$promise.then(function(data){
+                    .$promise.then(function (data) {
                         $scope.articles.push(data);
                     });
                 $scope.article = {};
@@ -74,7 +82,7 @@ myApp.directive('editArticleBlock', function () {
 
             $scope.editArticleForm = function () {
                 Articles.update({id: $scope.articleId}, $scope.editArticle)
-                    .$promise.then(function(){
+                    .$promise.then(function () {
                         angular.forEach($scope.articles, function (value, i) {
                             if (value._id === $scope.articleId) {
                                 $scope.articles.splice(i, 1, $scope.editArticle);
